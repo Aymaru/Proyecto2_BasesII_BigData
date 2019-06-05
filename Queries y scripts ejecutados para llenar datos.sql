@@ -19,8 +19,10 @@ values	('Social Network','Social Networks Avaiable' ),
 		('Tag','Tags Avaiable' ),
 		('Country','Countries Avaiable' ),
 		('City','Cities Avaiable' ),
-		('Action','Actions Avaiable' ),
-		('Content','Contents Available')
+		('Action Section','Actions Section Avaiable' ),
+		('Content','Contents Available'),
+		('Action','Actions Available')
+
 
 -- Informacion de los rangos de horas con mas uso de la aplicacion.
 insert into dbo.CDB_TimesInfo (startHour,endHour)
@@ -248,6 +250,99 @@ values	(1,56,1,1),
 		(5,3,5,0),
 		(6,4,6,0)
 
+-- Listado de acciones
+insert into dbo.CDB_Generics (idType, name, description)
+values	(9, 'Like Post', 'Action description'), -- Acciones de Posts
+		(9, 'Unike Post', 'Action description'),
+		(9, 'Coment Post', 'Action description'),
+		(9, 'Share Post', 'Action description'),
+		(9, 'Scroll Post', 'Action description'),
+		(9, 'Tag a friend in a Post', 'Action description'),
+		(9, 'Report Post', 'Action description'),
+		-- Acciones de Stories
+		(9, 'Watch Story', 'Action description'),
+		(9, 'Reply Story', 'Action description'),
+		(9, 'Share Story', 'Action description'),
+		(9, 'Share Story', 'Action description'),
+		(9, 'Skip a Story', 'Action description'),
+		(9, 'Tag Someone on a Story', 'Action description'),
+		-- Acciones de chat
+		(9, 'Send Message', 'Action description'),
+		(9, 'New Chat', 'Action description'),
+		(9, 'Delete Chat', 'Action description'),
+		(9, 'Like a Message', 'Action description'),
+		(9, 'Send Multimedia Message', 'Action description'),
+		(9, 'Scroll Chats', 'Action description'),
+		(9, 'Read Chat', 'Action description'),
+		-- Acciones de contenido
+		(9, 'Upload Post', 'Action description'),
+		(9, 'Delet Post', 'Action description'),
+		(9, 'Upload Story', 'Action description'),
+		(9, 'Delete Story', 'Action description'),
+		(9, 'Save Story', 'Action Description'),
+		-- Acciones de perfil
+		(9, 'Edit Profile', 'Action description'),
+		(9, 'Watch Profile', 'Action description'),
+		(9, 'Edit Best Friends Preferences', 'Action description'),
+		(9, 'Follow', 'Action description'),
+		(9, 'Unfollow', 'Action Description'),
+		--Acciones de Busqueda
+		(9, 'Search', 'Action Description'),
+		(9, 'Delete Search History', 'Action Description'),
+		(9, 'Select a Result', 'Action Description'),
+		(9, 'Scroll Results', 'Action Description'),
+		(9, 'Watch Result', 'Action Description'),
+		(9, 'Watch Post', 'Action Description')
+
+-- Acciones directas disponibles para cada seccion
+insert into dbo.CDB_ActionsXSection (idActionSection, idAction)
+values	(77,87),
+		(77,88),
+		(77,89),
+		(77,90),
+		(77,91),
+		(77,92),
+		(77,93),
+		-- hasta aqui acciones de Post
+		(78,95),
+		(78,96),
+		(78,97),
+		(78,98),
+		(78,99),
+		-- hasta aqui acciones de Story
+		(79,100),
+		(79,101),
+		(79,102),
+		(79,103),
+		(79,104),
+		(79,105),
+		-- hasta aqui acciones de chat
+		(80,107),
+		(80,108),
+		(80,109),
+		(80,110),
+		(80,111),
+		-- hasta aqui acciones de contenido
+		(81,112),
+		(81,114),
+		(81,115),
+		(81,116),
+		-- hasta aqui acciones de perfil
+		(82,117),
+		(82,118),
+		(82,119),
+		(82,120)
+		-- hasta aqui acciones de busqueda
+
+-- Acciones indirectas disponibles para cada seccion
+insert into dbo.CDB_ActionsXSection (idActionSection, idAction, is_direct_action)
+values	(78,94,0),
+		(79,106,0),
+		(81,113,0),
+		(82,121,0),
+		(82,121,0),
+		(77,122,0)
+		
 -- Valores de las ubicaciones geograficas
 INSERT INTO dbo.CDB_Location (latitude, longitude)
 values 	(9.934109, -84.102138),
@@ -420,7 +515,7 @@ declare @count as int
 
 set @count = 0
 
-while @count < 250
+while @count < 2000
 	begin
 		exec dbo.CDBSP_INSERT_CAMPAIGN
 		set @count = @count + 1
@@ -428,7 +523,7 @@ while @count < 250
 
 set @count = 0
 
-while @count < 50
+while @count < 500
 	begin
 		exec dbo.CDBSP_INSERT_USERSINFO
 		set @count = @count + 1
@@ -481,3 +576,6 @@ while @count < 50
 -- select * from dbo.CDB_UTMTAGSXCampaign
 -- select * from dbo.CDB_TagsXCampaign
 -- select * from CDB_Generics where idType = 4 
+
+-- select * from dbo.CDB_Generics where idType = 7 or idType = 9
+-- select * from dbo.CDB_ActionsXSection
