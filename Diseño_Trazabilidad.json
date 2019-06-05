@@ -1,0 +1,40 @@
+{
+	user_id: "1028309-221427", //16 bytes 
+	username: "Joseph Salas",  //32 bytes
+    gender: "male", //32 bytes
+    age: 18, //4 bytes
+    dateTime: "Especificar fecha de accion" , //8 bytes 
+    
+    actionType: "Dar like", //32 bytes
+    isDirectAction: true,
+    duration: "tiempo a Especificar", //32 bytes 
+    description: "Especificar accion", //150 bytes 
+ 
+    country: "Costa Rica",//32 bytes
+    city: "San Jose", //32 bytes
+    
+    latitude: "coor1", //8 bytes 
+    longitude: "coor2", //8 bytes
+
+
+    cotent: "post", //32 bytes
+    content_type: "video", //32 bytes
+    content_description: "Especificar que contenido es",  //150 bytes
+    content_Url: "direccion_Url", //90 bytes
+
+    utm_source: "",//32 bytes
+    utm_medium: "",//32 bytes
+    utm_campaign: "", //32 bytes
+    utm_term: "",//32 bytes
+    utm_content: "",//32 bytes
+
+    tags: 
+    [
+        "tag1","tag2","#JOY","#TEC","#GUARO"//160 bytes
+    ],
+
+    campaign_name: "Campaña1",//32 bytes
+    social_network: "twitter" //32 bytes
+
+
+}

@@ -1,0 +1,34 @@
+1) Tamaño del log
+    
+    fechas: fecha de 8 digitos "99/99/9999 99:99:99 AAA-99:99z"
+    booleans: true
+    numbers: 8 digitos
+    IDs: GUID's 18 digitos y guiones
+    tipos/tags: 36 chars
+    URL's: 90
+    Descripcion textual: 150 chars
+    
+    
+    1 año
+    
+    tamaño aprox log 1010 bytes = L
+    1 GB = 1073741824 bytes = G
+    Cant total de logs = G / L = 1003110 Logs 
+    
+            dias    %       cant        acciones    usuarios(logs/acciones x dias)
+    año =   80      48%     510294      20          320
+            139     27%     287039      35          63      
+            115     25%     265778      12          192
+    
+    ---------------------------------------------------------
+    
+       1 año
+    
+    tamaño aprox log 1050 bytes = L
+    1 GB = 1073741824 bytes = G
+    Cant total de logs = G / L = 1,022,611 Logs 
+    
+            dias    %       cant        acciones    usuarios(logs/acciones x dias)  logsXusuario
+    año =   80      48%     490,853      37          167                            2940
+            139     27%     276,105      22          90                             3068
+            115     25%     255,653      13          172                            1486
