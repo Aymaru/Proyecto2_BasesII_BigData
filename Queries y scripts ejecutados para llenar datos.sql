@@ -243,12 +243,12 @@ values	(0,55),
 
 -- Es la informacion sobre la ocurrencia de una accion
 insert into dbo.CDB_ActionsInfo ( idAction, percentage, idRange, isContent)
-values	(1,56,1,1),
-		(2,26,2,1),
-		(3,7,3,0),
-		(4,4,4,1),
-		(5,3,5,0),
-		(6,4,6,0)
+values	(77,56,1,1),
+		(78,26,2,1),
+		(79,7,3,0),
+		(80,4,4,1),
+		(81,3,5,0),
+		(82,4,6,0)
 
 -- Listado de acciones
 insert into dbo.CDB_Generics (idType, name, description)
@@ -555,8 +555,8 @@ while @count < 500
 -- where idType = 6
 
 -- Selecciona todos los accions en generic
--- select * from dbo.CDB_Generics
--- where idType = 7
+ select * from dbo.CDB_Generics
+ where idType = 7
 
 -- Selecciona todos los media en generic
 -- select * from dbo.CDB_Generics
