@@ -64,7 +64,7 @@ CREATE PROCEDURE CDBSP_INSERT_CAMPAIGN
 	values (@idAgeRange, @idGender, cast( @random_duration as nvarchar(32)) + ' days', @startDate, @endDate, @cost, 'Some description')
 	
 	-- Obtiene el id de la campaña insertada
-	select @idCampaign = ISNULL((select top 1 idCampaign from dbo.CDB_Campaign order by idCampaign desc) ,1)
+	select @idCampaign = max(idCampaign) from dbo.CDB_Campaign 
 
 	-- Seleccionar una red social aleatoria
 	select @first = (select top 1 idGeneric from dbo.CDB_Generics where idType = 1)

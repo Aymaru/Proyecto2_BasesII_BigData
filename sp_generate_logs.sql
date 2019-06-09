@@ -1,67 +1,41 @@
 -- use Campaign
--- drop procedure 
+-- drop procedure CDBPS_GENERATE_LOGS
 CREATE PROCEDURE CDBPS_GENERATE_LOGS
 as
 
-	-- Variables para generar los logs
-	declare @logs as table (	id_user uniqueidentifier,
-								username nvarchar(32),
-								gender nvarchar(32),
-								age int,
-								date_time datetime,
-								action_type nvarchar(32),
-								is_direct_action bit,
-								duration int,
-								description nvarchar(150),
-								country nvarchar(32),
-								city nvarchar(32),
-								latitude float,
-								longitude float,
-								content nvarchar(32),
-								content_type nvarchar(32),
-								content_description nvarchar(150),
-								content_url nvarchar(90),
-								utm_source nvarchar(32),
-								utm_medium nvarchar(32),
-								utm_campaign nvarchar(32),
-								utm_term nvarchar(32),
-								utm_content nvarchar(32),
-								campaign_name nvarchar(32),
-								social_network nvarchar(32),
-								tag1 nvarchar(32),
-								tag2 nvarchar(32),
-								tag3 nvarchar(32),
-								tag4 nvarchar(32),
-								tag5 nvarchar(32)
-							)
 	-- variables para insertar logs en la tabla
+
+	-- Generales para todos los logs de cada usuario
 	declare @username as nvarchar(32)
-	declare @gender as nvarchar(32)
+	declare @gender as nvarchar(32) 
+	declare @age as nvarchar(32) 
+
+	-- Independiente para cada log
+	declare @duration as int 
 	declare @action_type as nvarchar(32)
 	declare @description as nvarchar(150)
 	declare @country as nvarchar(32)
 	declare @city as nvarchar(32)
-	declare @latitude as float
-	declare @longitude as float
-	declare @content as nvarchar(32)
+	declare @latitude as float 
+	declare @longitude as float 
 	declare @content_type as nvarchar(32)
 	declare @content_description nvarchar(150)
 	declare @content_url nvarchar(90)
-	declare @utm_source nvarchar(32)
-	declare @utm_medium nvarchar(32)
-	declare @utm_campaign nvarchar(32)
-	declare @utm_term nvarchar(32)
-	declare @utm_content nvarchar(32)
-	declare @campaign_name nvarchar(32)
-	declare @social_network nvarchar(32)
+	declare @utm_source nvarchar(32) 
+	declare @utm_medium nvarchar(32) 
+	declare @utm_campaign nvarchar(32) 
+	declare @utm_term nvarchar(32) 
+	declare @utm_content nvarchar(32) 
+	declare @campaign_name nvarchar(32) 
+	declare @social_network nvarchar(32) 
 	declare @tmptag as nvarchar(32)
-	declare @tag1 nvarchar(32)
-	declare @tag2 nvarchar(32)
-	declare @tag3 nvarchar(32)
-	declare @tag4 nvarchar(32)
-	declare @tag5 nvarchar(32)
 	 
 	declare @pointer as int
+	declare @idCityXCountry as int
+	declare @location1 as int
+	declare @location2 as int
+	declare @location3 as int
+	declare @location4 as int
 	
 	declare @logsXuser as int
 	declare @quantityLogs as int
@@ -69,9 +43,14 @@ as
 	declare @quantityActions as int
 	
 	declare @tmpcounter as int
+	declare @tmpcampaign as int
 	declare @tmpuser as uniqueidentifier
 	declare @tmpaction as int
 	declare @random as int
+	declare @tagcounter as int
+	declare @campaigncounter as int
+	declare @isDirectAction as bit
+	declare @isContent as bit
 
 	declare @cursor as cursor
 
@@ -79,8 +58,8 @@ as
 
 	declare @users as table (id int, userid uniqueidentifier)
 	declare @tags as table (id int, tag nvarchar(32))
+	declare @campaigns as table (id int, campaign int)
 	declare @users_used as table (id int)
-	declare @actions as table (idaction int)
 
 	-- variables para generar una fecha aleatoria
 	declare @days as int
@@ -89,6 +68,20 @@ as
 
 	declare @tmpdate as datetime
 	declare @date_template as datetime
+
+	-- variables para calcular la latitud y longitud de un log
+	declare @lat1 as float
+	declare @lat2 as float
+	declare @lat3 as float
+	declare @lat4 as float
+	declare @lon1 as float
+	declare @lon2 as float
+	declare @lon3 as float
+	declare @lon4 as float
+	declare @MAXLAT as float
+	declare @MAXLON as float
+	declare @MINLAT as float
+	declare @MINLON as float
 
 	-- variables para determinar rangos
 	declare @prob_tags as int -- 85% prob de que los tags sean de preferencia
@@ -99,16 +92,19 @@ as
 	declare @prob_duration as int -- Duracion de las acciones indirectas 65% de 1 a 3 y el resto de 3 a 8
 
 	declare @first as int
+	declare @idLog as int
 
 	set nocount on
 
 	-- Iniciar contador en 1
 	set @tmpcounter = 1
 
+	set @content_url = 'http:\\contentUrl\something'
+
 	-- Año base 
 	select @date_template = '2019-01-01 00:00:00.000'
 	
-	-- ingresa todos los usuarios a una tabla temporal
+	-- ingresa todos los usuarios a una tabla variable
 	delete @users
 	begin
 		set @cursor = cursor for
@@ -142,9 +138,10 @@ as
 			select @quantityLogs = quantityLogs, @quantityUsers = quantityUsers, @quantityActions = quantityActions from dbo.CDB_LogsInfo where @pointer = idLogInfo
 			set @logsXuser = @quantityLogs / @quantityUsers 
 			set @logsXuser = @logsXuser + (@logsXuser * 0.2)
-
+			--set @quantityUsers = 10
+			--set @logsXuser = 50
 			-- Limpia la tabla temporal de usuarios usados
-			delete @users_used
+			delete from @users_used
 
 			-- Selecciona un usuario aleatorio
 			select @random = cast( RAND() * (select count(1) from @users) as int) + 1
@@ -155,10 +152,33 @@ as
 			-- Ciclo para recorrer los usuarios que se utilicen
 			while @quantityUsers > 0
 				begin
+					select @username = name from dbo.CDB_UsersInfo where idUnique = @tmpuser
+					-- Genera la edad del usuario, edades entre 13 y 60
+					set @random = cast( RAND() * 48 as int)
+					set @age = @random + 13
 					
+					-- Genera el genero aleatorio, los valores de genero son 10 11 y 12, hombre, mujer e indefinido respectivamente
+					set @random = cast( RAND() * 3 as int) + 10
+					select @gender = generics.name from dbo.CDB_Generics generics where idGeneric = @random
+
 					set @tmpcounter = 0 -- Ciclo para generar los logs x usuario
+
 					while @tmpcounter < @logsXuser
 						begin
+							-- Limpia todas las variables que se necesiten generar para cada log
+							set @duration = null
+							set @content_type = null
+							set @content_description = null
+							set @utm_source = null
+							set @utm_medium = null
+							set @utm_campaign = null
+							set @utm_term = null
+							set @utm_content = null
+							set @social_network = null
+							set @tmpdate = null
+							delete from @tags
+							delete from @campaigns
+
 							-- Generar fecha aleatoria
 							select @days = cast (RAND () * 365 as int) 
 							select @hours = cast (RAND () * 24 as int) 
@@ -175,18 +195,69 @@ as
 							select @prob_repeat = cast( RAND() * 100 as int) 
 							select @prob_tags = cast( RAND() * 100 as int) -- tabla
 
-							select @tmpaction = idAction from dbo.CDB_ActionsInfo actions inner join dbo.CDB_Ranges ranges on (actions.idRange = ranges.idRange) where @prob_action between ranges.startRange and ranges.endRange
-
+							select @tmpaction = actions.idAction, @isContent = actions.isContent from dbo.CDB_ActionsInfo actions inner join dbo.CDB_Ranges ranges on (actions.idRange = ranges.idRange) where @prob_action between ranges.startRange and ranges.endRange
+							
 							-- Seleccionar una accion aleatoria
-							select @first = (select top 1 idGeneric from dbo.CDB_Generics where idType = 9)
-							select @random = cast (RAND() * (select count(1) from dbo.CDB_Generics where idType = 9) as int)
+							select @first = g2.idGeneric from dbo.CDB_Generics g1 inner join CDB_ActionsXSection actionsXsection on (g1.idGeneric = actionsXsection.idActionSection) inner join dbo.CDB_Generics g2 on (g2.idGeneric = actionsXsection.idAction) where actionsXsection.idActionSection = @tmpaction
+							select @random = cast (RAND() * (select count(1) from dbo.CDB_Generics g1 inner join CDB_ActionsXSection actionsXsection on (g1.idGeneric = actionsXsection.idActionSection) inner join dbo.CDB_Generics g2 on (g2.idGeneric = actionsXsection.idAction) where actionsXsection.idActionSection = @tmpaction) as int)
 							select @action_type = generics.name, @description = generics.description from dbo.CDB_Generics generics where idGeneric = (@first + @random)
+							
+							select @isDirectAction = axs.is_direct_action from dbo.CDB_ActionsXSection axs inner join dbo.CDB_Generics generics on (axs.idAction = generics.idGeneric) where generics.name = @action_type
+							
+							if @isDirectAction = 0
+								begin
+										if @prob_duration < 65
+											begin
+												set @duration = cast ( RAND() * 3 as int ) + 1
+											end
+										else
+											begin
+												set @duration = cast ( RAND() * 6 as int ) + 3
+											end
+								end
+
+							if @isContent = 1
+								begin
+									select @first =  min(generics.idGeneric) from dbo.CDB_Generics generics where idType = 8
+									select @random = cast (RAND() * (select count(1) from dbo.CDB_Generics generics where idType = 8) as int)
+									select @content_type = generics.name, @content_description = generics.description from dbo.CDB_Generics generics where idGeneric = (@first + @random)
+								end
+
 							-- Obtiene Nombre de Ciudad y Pais del Usuario
-							select @country = generics.name from dbo.CDB_UsersInfo usersinfo inner join dbo.CDB_CitiesXCountry cities on (usersinfo.idCityXCountry = cities.idCityXCountry) inner join dbo.CDB_Generics generics on (generics.idGeneric = cities.idCountry)
-							select @city = generics.name from dbo.CDB_UsersInfo usersinfo inner join dbo.CDB_CitiesXCountry cities on (usersinfo.idCityXCountry = cities.idCityXCountry) inner join dbo.CDB_Generics generics on (generics.idGeneric = cities.idCity)
+							select  @idCityXCountry = usersinfo.idCityXCountry, @country = g1.name, @city = g2.name, @lat1 = l1.latitude, @lat2 = l2.latitude, @lat3 = l3.latitude, @lat4 = l4.latitude, @lon1 = l1.longitude, @lon2 = l2.longitude, @lon3 = l3.longitude, @lon4 = l4.longitude -- @location1 = usersinfo.location1, @location2 = usersinfo.location2, @location3 = usersinfo.location3, @location4 = usersinfo.location4
+							from	dbo.CDB_UsersInfo usersinfo inner join 
+									dbo.CDB_CitiesXCountry cxc on (usersinfo.idCityXCountry = cxc.idCityXCountry) inner join
+									dbo.CDB_Generics g1 on (g1.idGeneric = cxc.idCountry) inner join 
+									dbo.CDB_Generics g2 on (g2.idGeneric = cxc.idCity) inner join
+									dbo.CDB_Ranges ranges on (usersinfo.idRangeLocation = ranges.idRange) inner join
+									dbo.CDB_Location l1 on (usersinfo.location1 = l1.idLocation) inner join
+									dbo.CDB_Location l2 on (usersinfo.location2 = l2.idLocation) inner join
+									dbo.CDB_Location l3 on (usersinfo.location3 = l3.idLocation) inner join
+									dbo.CDB_Location l4 on (usersinfo.location4 = l4.idLocation)
+							where usersinfo.idUnique = @tmpuser	and @prob_location between ranges.startRange and ranges.endRange		
+							
+							if @location1 = null
+								begin
+									select  @lat1 = l1.latitude, @lat2 = l2.latitude, @lat3 = l3.latitude, @lat4 = l4.latitude, @lon1 = l1.longitude, @lon2 = l2.longitude, @lon3 = l3.longitude, @lon4 = l4.longitude 
+									from dbo.CDB_CitiesXCountry cxc inner join
+										dbo.CDB_Location l1 on (cxc.idLocation1 = l1.idLocation) inner join
+										dbo.CDB_Location l2 on (cxc.idLocation2 = l2.idLocation) inner join
+										dbo.CDB_Location l3 on (cxc.idLocation3 = l3.idLocation) inner join
+										dbo.CDB_Location l4 on (cxc.idLocation4 = l4.idLocation)
+									where cxc.idCityXCountry = @idCityXCountry
+								end								
+								
+							set @MAXLAT = dbo.CDBFN_CALCMAXVALUE(@lat1,@lat2,@lat3,@lat4)
+							set @MINLAT = dbo.CDBFN_CALCMINVALUE(@lat1,@lat2,@lat3,@lat4)
+							set @MAXLON = dbo.CDBFN_CALCMAXVALUE(@lon1,@lon2,@lon3,@lon4)
+							set @MINLON = dbo.CDBFN_CALCMAXVALUE(@lon1,@lon2,@lon3,@lon4)
+
+							-- Generar latitud y longitud aleatoria
+							set @latitude = ROUND (  RAND() * (@MAXLAT - @MINLAT) + @MINLAT, 4 ,1)
+							set @longitude = ROUND (  RAND() * (@MAXLON - @MINLON) + @MINLON , 4 ,1)	
 							
 							-- Obtiene los tags del contenido
-							set @tmpcounter = 1							
+							set @tagcounter = 1							
 							delete @tags
 
 							if @prob_tags between 0 and 86
@@ -203,9 +274,9 @@ as
 									begin
 			
 										insert into @tags ( id, tag )
-										values (@tmpcounter, @tmptag)
+										values (@tagcounter, @tmptag)
 
-										set @tmpcounter = @tmpcounter + 1
+										set @tagcounter = @tagcounter + 1
 										fetch next from @cursor
 										into @tmptag
 									end
@@ -227,9 +298,9 @@ as
 									begin
 			
 										insert into @tags ( id, tag )
-										values (@tmpcounter, @tmptag)
+										values (@tagcounter, @tmptag)
 
-										set @tmpcounter = @tmpcounter + 1
+										set @tagcounter = @tagcounter + 1
 										fetch next from @cursor
 										into @tmptag
 									end
@@ -237,34 +308,76 @@ as
 									close @cursor
 									deallocate @cursor
 								end
+							
+							select @random = cast( RAND() * (select count(1) from @tags) as int) + 1
+							select @tmptag = tag from @tags where id = @random
+							
+							if @prob_campaign between 0 and 16
+								begin
+									set @campaigncounter = 1
+									-- El 86% del tiempo obtiene tags de la preferencia
+									set @cursor = cursor for
+									select cxcxc.idCampaign
+									from dbo.CDB_Campaign campaign inner join
+										dbo.CDB_CitiesXCountryXCampaign cxcxc on (campaign.idCampaign = cxcxc.idCampaign)
+									where @idCityXCountry = cxcxc.idCityXCountry and GETDATE() between campaign.startDate and campaign.endDate 
 
-							if @prob_campaign between 0 and 84
-							begin
-								select * from
-							end
+									open @cursor
+									fetch next from @cursor
+									into @tmpcampaign
+
+									while @@FETCH_STATUS = 0
+									begin
+			
+										insert into @campaigns ( id, campaign )
+										values (@campaigncounter, @tmpcampaign)
+
+										set @campaigncounter = @campaigncounter + 1
+
+										fetch next from @cursor
+										into @tmpcampaign
+									end
+
+									close @cursor
+									deallocate @cursor
+
+									set @random = cast ( RAND() * (select count(1) from @campaigns) as int) + 1
+									select @tmpcampaign = campaign from @campaigns where id = @random
+
+									select @campaign_name = 'Campaña ' + cast( campaign.idCampaign as nvarchar(32)), @social_network = gsnx.name, @utm_source = utm.utm_source, @utm_medium = utm.utm_medium, @utm_campaign = utm.utm_campaign, @utm_term = utm.utm_term, @utm_content = utm.utm_content
+									from	dbo.CDB_Campaign campaign inner join
+											dbo.CDB_SocialNetworkXCampaign snxc on (campaign.idCampaign = snxc.idCampaign) inner join
+											dbo.CDB_Generics gsnx on (snxc.idSocialNetwork = gsnx.idGeneric) inner join
+											dbo.CDB_UTMTagsXCampaign utmxc on (campaign.idCampaign = utmxc.idCampaign) inner join
+											dbo.CDB_UTMTags utm on (utm.idUTMTag = utmxc.idUTMTag )
+									where campaign.idCampaign = @random
+
+								end
 							--
 							-- insertar log
 							--
-
-							set @tmpcounter = @tmpcounter + 1
+							insert into dbo.CDB_Logs (username, gender, age, _datetime, action_type, duration, description, country, city, latitude, longitude,content_type, content_description, content_url, utm_source, utm_medium, utm_campaign, utm_term, utm_content,campaign_name, social_network,tag)
+							values (@username, @gender, @age, @tmpdate, @action_type, @duration, @description, @country, @city, @latitude, @longitude, @content_type, @content_description, @content_url, @utm_source, @utm_medium, @utm_campaign, @utm_term, @utm_content, @campaign_name, @social_network, @tmptag)
+					
+					
+						set @tmpcounter = @tmpcounter + 1
 						end
 					
 					-- Selecciona el siguiente usuario
 					select @random = cast( RAND() * (select count(1) from @users) as int) + 1
-					--Se asegura que el usuario seleccionado no se haya usado anteriormente
-					while exists ( select count(1) from @users_used where id = @random)
-					begin
-						select @random = cast( RAND() * (select count(1) from @users) as int) + 1
-					end
+					
+					----Se asegura que el usuario seleccionado no se haya usado anteriormente
+					--while exists( select count(1) from @users_used where id = @random)
+					--begin
+					--	select @random = cast( RAND() * (select count(1) from @users) as int) + 1
+					--end
+
 					-- Obtiene el identifier del user
 					select @tmpuser = userid from @users where id = @random
 					insert into @users_used (id) values (@random)
 					-- Resta uno a la cantidad de usuarios y continua con el siguiente
 					set @quantityUsers = @quantityUsers - 1
 				end
-
-
-
 
 			-- Aumento el puntero para avanzar en la tabla de informacion de los logs
 			set @pointer = @pointer + 1

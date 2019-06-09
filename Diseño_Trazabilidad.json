@@ -28,14 +28,6 @@
     utm_term: "",//32 bytes
     utm_content: "",//32 bytes
 
-    tag1: "tag1 w",
-    tag2: "tag2 s",
-    tag3: "tag3 d",
-    tag4: "tag4 f",
-    tag5: "tag5 g",
-
-    campaign_name: "Campaña1",//32 bytes
-    social_network: "twitter" //32 bytes
-
+    tags: "tag"
 
 }

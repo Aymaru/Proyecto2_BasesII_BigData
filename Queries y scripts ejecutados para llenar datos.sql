@@ -529,6 +529,8 @@ while @count < 500
 		set @count = @count + 1
 	end
 
+exec dbo.CDBPS_GENERATE_LOGS
+
 -- select * from dbo.CDB_LogsInfo
 
 -- select * from dbo.CDB_Types
@@ -555,8 +557,8 @@ while @count < 500
 -- where idType = 6
 
 -- Selecciona todos los accions en generic
- select * from dbo.CDB_Generics
- where idType = 7
+ --select * from dbo.CDB_Generics
+ --where idType = 7
 
 -- Selecciona todos los media en generic
 -- select * from dbo.CDB_Generics
