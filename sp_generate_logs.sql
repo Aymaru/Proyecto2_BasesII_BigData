@@ -93,17 +93,16 @@ as
 
 	declare @first as int
 	declare @idLog as int
+	declare @idTagxlog int
+
 
 	set nocount on
 
 	-- Iniciar contador en 1
 	set @tmpcounter = 1
 
-	set @content_url = 'http:\\contentUrl\something'
+	set @content_url = 'http:someurl'
 
-	-- Año base 
-	select @date_template = '2019-01-01 00:00:00.000'
-	
 	-- ingresa todos los usuarios a una tabla variable
 	delete @users
 	begin
@@ -135,11 +134,11 @@ as
 	while exists (select idLogInfo from dbo.CDB_LogsInfo where idLogInfo = @pointer)
 		begin
 		
-			select @quantityLogs = quantityLogs, @quantityUsers = quantityUsers, @quantityActions = quantityActions from dbo.CDB_LogsInfo where @pointer = idLogInfo
-			set @logsXuser = @quantityLogs / @quantityUsers 
-			set @logsXuser = @logsXuser + (@logsXuser * 0.2)
-			--set @quantityUsers = 10
-			--set @logsXuser = 50
+			--select @quantityLogs = quantityLogs, @quantityUsers = quantityUsers, @quantityActions = quantityActions from dbo.CDB_LogsInfo where @pointer = idLogInfo
+			--set @logsXuser = @quantityLogs / @quantityUsers 
+			--set @logsXuser = @logsXuser + (@logsXuser * 0.2)
+			set @quantityUsers = 10
+			set @logsXuser = 50
 			-- Limpia la tabla temporal de usuarios usados
 			delete from @users_used
 
@@ -176,9 +175,12 @@ as
 							set @utm_content = null
 							set @social_network = null
 							set @tmpdate = null
+							set @campaign_name = null
 							delete from @tags
 							delete from @campaigns
-
+							
+							-- Año base 
+							select @date_template = '2019-01-01 00:00:00.000'
 							-- Generar fecha aleatoria
 							select @days = cast (RAND () * 365 as int) 
 							select @hours = cast (RAND () * 24 as int) 
@@ -257,8 +259,7 @@ as
 							set @longitude = ROUND (  RAND() * (@MAXLON - @MINLON) + @MINLON , 4 ,1)	
 							
 							-- Obtiene los tags del contenido
-							set @tagcounter = 1							
-							delete @tags
+							set @tagcounter = 1	
 
 							if @prob_tags between 0 and 86
 								begin
@@ -320,7 +321,7 @@ as
 									select cxcxc.idCampaign
 									from dbo.CDB_Campaign campaign inner join
 										dbo.CDB_CitiesXCountryXCampaign cxcxc on (campaign.idCampaign = cxcxc.idCampaign)
-									where @idCityXCountry = cxcxc.idCityXCountry and GETDATE() between campaign.startDate and campaign.endDate 
+									where @idCityXCountry = cxcxc.idCityXCountry and @tmpdate between campaign.startDate and campaign.endDate 
 
 									open @cursor
 									fetch next from @cursor
@@ -345,7 +346,7 @@ as
 									select @tmpcampaign = campaign from @campaigns where id = @random
 
 									select @campaign_name = 'Campaña ' + cast( campaign.idCampaign as nvarchar(32)), @social_network = gsnx.name, @utm_source = utm.utm_source, @utm_medium = utm.utm_medium, @utm_campaign = utm.utm_campaign, @utm_term = utm.utm_term, @utm_content = utm.utm_content
-									from	dbo.CDB_Campaign campaign inner join
+									from	@campaigns c inner join dbo.CDB_Campaign campaign on (c.campaign = campaign.idCampaign) inner join
 											dbo.CDB_SocialNetworkXCampaign snxc on (campaign.idCampaign = snxc.idCampaign) inner join
 											dbo.CDB_Generics gsnx on (snxc.idSocialNetwork = gsnx.idGeneric) inner join
 											dbo.CDB_UTMTagsXCampaign utmxc on (campaign.idCampaign = utmxc.idCampaign) inner join
@@ -356,9 +357,25 @@ as
 							--
 							-- insertar log
 							--
-							insert into dbo.CDB_Logs (username, gender, age, _datetime, action_type, duration, description, country, city, latitude, longitude,content_type, content_description, content_url, utm_source, utm_medium, utm_campaign, utm_term, utm_content,campaign_name, social_network,tag)
-							values (@username, @gender, @age, @tmpdate, @action_type, @duration, @description, @country, @city, @latitude, @longitude, @content_type, @content_description, @content_url, @utm_source, @utm_medium, @utm_campaign, @utm_term, @utm_content, @campaign_name, @social_network, @tmptag)
-					
+							insert into dbo.CDB_Logs (username, gender, age, _datetime, action_type, duration, description, country, city, latitude, longitude,content_type, content_description, content_url, campaign_name ,social_network , utm_source, utm_medium, utm_campaign, utm_term, utm_content)
+							values (@username, RTRIM(@gender), @age, @tmpdate, RTRIM(@action_type), @duration, @description, RTRIM(@country), RTRIM(@city), @latitude, @longitude, RTRIM(@content_type), @content_description, @content_url, RTRIM(@campaign_name), RTRIM(@social_network), RTRIM(@utm_source), RTRIM(@utm_medium), RTRIM(@utm_campaign), RTRIM(@utm_term), RTRIM(@utm_content))
+							
+							select @idLog = max(idLog) from dbo.CDB_Logs
+							set @idTagxlog = 1
+							select @tagcounter = cast ( RAND() * 3 as int) + 3
+
+							while @tagcounter > 0
+								begin
+									set @random = cast (RAND() * (select count(1) from @tags)as int)
+									select @tmptag = tag from @tags where id = @random 
+
+
+									insert into dbo.CDB_TagsXLog (_id, idLog, tag)
+									values (@idTagxlog, @idLog, RTRIM(@tmptag))
+
+									set @tagcounter = @tagcounter - 1
+									set @idTagxLog = @idTagxlog + 1
+								end
 					
 						set @tmpcounter = @tmpcounter + 1
 						end

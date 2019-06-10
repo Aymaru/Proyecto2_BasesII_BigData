@@ -81,11 +81,11 @@ CREATE PROCEDURE CDBSP_INSERT_CAMPAIGN
 
 	-- Inserta un utm tag 
 	insert into dbo.CDB_UTMTags (utm_source, utm_medium, utm_campaign, utm_term, utm_content)
-	values ('?utm_source=' + (select name from dbo.CDB_Generics where idGeneric = @idSocialNetwork),
-			'&utm_medium=cpc',
-			'&utm_campaign=',-- + cast (NEWID() as nvarchar(32)), 
-			'&utm_term=some%20term', 
-			'&utm_content=some%20content' )
+	values ('utm_source ' + (select name from dbo.CDB_Generics where idGeneric = @idSocialNetwork),
+			'utm_medium cpc',
+			'utm_campaign ',-- + cast (NEWID() as nvarchar(32)), 
+			'utm_term some term', 
+			'utm_content some content' )
 
 	-- Obtiene el id del ultimo utm tag insertado
 	select @idUTMTag = (select top 1 idUTMTag from dbo.CDB_UTMTags order by idUTMTag desc)

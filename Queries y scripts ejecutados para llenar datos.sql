@@ -7,9 +7,9 @@ use Campaign
 -- Cantidad total de logs
 -- tamaño aproximado de cada log
 insert into dbo.CDB_LogsInfo (days, percentage, quantityLogs, quantityActions, quantityUsers)
-values  ( 80,48,490853,37, 167 ),
-		( 139,27,276105,22, 90 ),
-		( 115,25,255653,13, 172 )
+values  ( 80,48,490853,37, 350 ), --167
+		( 139,27,276105,22, 123 ), --90
+		( 115,25,255653,13, 172 )--172
 
 -- Son los tipos de las tabas que utilizan el generic 
 insert into dbo.CDB_Types (name, description)
@@ -515,7 +515,7 @@ declare @count as int
 
 set @count = 0
 
-while @count < 2000
+while @count < 10000
 	begin
 		exec dbo.CDBSP_INSERT_CAMPAIGN
 		set @count = @count + 1
@@ -523,13 +523,13 @@ while @count < 2000
 
 set @count = 0
 
-while @count < 500
+while @count < 2000
 	begin
 		exec dbo.CDBSP_INSERT_USERSINFO
 		set @count = @count + 1
 	end
 
-exec dbo.CDBPS_GENERATE_LOGS
+ -- exec dbo.CDBPS_GENERATE_LOGS
 
 -- select * from dbo.CDB_LogsInfo
 
