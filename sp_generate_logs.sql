@@ -134,11 +134,11 @@ as
 	while exists (select idLogInfo from dbo.CDB_LogsInfo where idLogInfo = @pointer)
 		begin
 		
-			--select @quantityLogs = quantityLogs, @quantityUsers = quantityUsers, @quantityActions = quantityActions from dbo.CDB_LogsInfo where @pointer = idLogInfo
-			--set @logsXuser = @quantityLogs / @quantityUsers 
-			--set @logsXuser = @logsXuser + (@logsXuser * 0.2)
-			set @quantityUsers = 10
-			set @logsXuser = 50
+			select @quantityLogs = quantityLogs, @quantityUsers = quantityUsers, @quantityActions = quantityActions from dbo.CDB_LogsInfo where @pointer = idLogInfo
+			set @logsXuser = ( @quantityLogs / @quantityUsers ) * 3
+			set @logsXuser = ( @logsXuser + ( @logsXuser * 0.2 ) ) * 3
+			--set @quantityUsers = 10
+			--set @logsXuser = 50
 			-- Limpia la tabla temporal de usuarios usados
 			delete from @users_used
 
@@ -321,7 +321,7 @@ as
 									select cxcxc.idCampaign
 									from dbo.CDB_Campaign campaign inner join
 										dbo.CDB_CitiesXCountryXCampaign cxcxc on (campaign.idCampaign = cxcxc.idCampaign)
-									where @idCityXCountry = cxcxc.idCityXCountry and @tmpdate between campaign.startDate and campaign.endDate 
+									where @tmpdate between campaign.startDate and campaign.endDate 
 
 									open @cursor
 									fetch next from @cursor
@@ -351,7 +351,7 @@ as
 											dbo.CDB_Generics gsnx on (snxc.idSocialNetwork = gsnx.idGeneric) inner join
 											dbo.CDB_UTMTagsXCampaign utmxc on (campaign.idCampaign = utmxc.idCampaign) inner join
 											dbo.CDB_UTMTags utm on (utm.idUTMTag = utmxc.idUTMTag )
-									where campaign.idCampaign = @random
+									where c.id = @random
 
 								end
 							--
