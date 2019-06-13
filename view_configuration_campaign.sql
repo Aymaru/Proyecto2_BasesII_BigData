@@ -1,4 +1,6 @@
-CREATE VIEW View_Configuration_Campaign
+-- use Campaign
+-- delete CDBVW_CAMPAIGN_CONFIGURATION
+CREATE VIEW CDBVW_CAMPAIGN_CONFIGURATION
 AS SELECT campaign.idCampaign as 'ID de la campaña', campaign.description as 'Descripción de la Campaña', startDate as 'Fecha Inicio', endDate as 'Fecha Final', duration as 'Duración de la campaña', campaign.totalCost as 'Costo Total', 
  publicAmount as 'Publico', webURL as 'URL de campaña', g1.name as 'Pais de la campaña', g2.name as 'Ciudad de la campaña', g4.name as 'Tag Asociado a la campaña'
 FROM
