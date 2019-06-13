@@ -6,7 +6,6 @@ as
 	-- variables para insertar logs en la tabla
 
 	-- Generales para todos los logs de cada usuario
-	declare @username as nvarchar(32)
 	declare @gender as nvarchar(32) 
 	declare @age as nvarchar(32) 
 
@@ -18,7 +17,7 @@ as
 	declare @city as nvarchar(32)
 	declare @latitude as float 
 	declare @longitude as float 
-	declare @content_type as nvarchar(32)
+	declare @content_type as nvarchar(32) 
 	declare @content_description nvarchar(150)
 	declare @content_url nvarchar(90)
 	declare @utm_source nvarchar(32) 
@@ -135,8 +134,8 @@ as
 		begin
 		
 			select @quantityLogs = quantityLogs, @quantityUsers = quantityUsers, @quantityActions = quantityActions from dbo.CDB_LogsInfo where @pointer = idLogInfo
-			set @logsXuser = ( @quantityLogs / @quantityUsers ) * 3
-			set @logsXuser = ( @logsXuser + ( @logsXuser * 0.2 ) ) * 3
+			set @logsXuser = ( @quantityLogs / @quantityUsers ) 
+			set @logsXuser = ( @logsXuser + ( @logsXuser * 0.2 ) ) 
 			--set @quantityUsers = 10
 			--set @logsXuser = 50
 			-- Limpia la tabla temporal de usuarios usados
@@ -151,7 +150,6 @@ as
 			-- Ciclo para recorrer los usuarios que se utilicen
 			while @quantityUsers > 0
 				begin
-					select @username = name from dbo.CDB_UsersInfo where idUnique = @tmpuser
 					-- Genera la edad del usuario, edades entre 13 y 60
 					set @random = cast( RAND() * 48 as int)
 					set @age = @random + 13
@@ -321,7 +319,7 @@ as
 									select cxcxc.idCampaign
 									from dbo.CDB_Campaign campaign inner join
 										dbo.CDB_CitiesXCountryXCampaign cxcxc on (campaign.idCampaign = cxcxc.idCampaign)
-									where @tmpdate between campaign.startDate and campaign.endDate 
+									where @tmpdate between campaign.startDate and campaign.endDate and @idCityXCountry = cxcxc.idCityXCountry
 
 									open @cursor
 									fetch next from @cursor
@@ -358,7 +356,7 @@ as
 							-- insertar log
 							--
 							insert into dbo.CDB_Logs (username, gender, age, _datetime, action_type, duration, description, country, city, latitude, longitude,content_type, content_description, content_url, campaign_name ,social_network , utm_source, utm_medium, utm_campaign, utm_term, utm_content)
-							values (@username, RTRIM(@gender), @age, @tmpdate, RTRIM(@action_type), @duration, @description, RTRIM(@country), RTRIM(@city), @latitude, @longitude, RTRIM(@content_type), @content_description, @content_url, RTRIM(@campaign_name), RTRIM(@social_network), RTRIM(@utm_source), RTRIM(@utm_medium), RTRIM(@utm_campaign), RTRIM(@utm_term), RTRIM(@utm_content))
+							values (@tmpuser, RTRIM(@gender), @age, @tmpdate, RTRIM(@action_type), @duration, @description, RTRIM(@country), RTRIM(@city), @latitude, @longitude, RTRIM(@content_type), @content_description, @content_url, RTRIM(@campaign_name), RTRIM(@social_network), RTRIM(@utm_source), RTRIM(@utm_medium), RTRIM(@utm_campaign), RTRIM(@utm_term), RTRIM(@utm_content))
 							
 							select @idLog = max(idLog) from dbo.CDB_Logs
 							set @idTagxlog = 1

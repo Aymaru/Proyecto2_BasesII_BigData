@@ -24,12 +24,12 @@ values	('Social Network','Social Networks Avaiable' ),
 		('Action','Actions Available')
 
 
--- Informacion de los rangos de horas con mas uso de la aplicacion.
-insert into dbo.CDB_TimesInfo (startHour,endHour)
-values	('06:00:00.000','09:00:00.000'),
-		('12:00:00.000','13:00:00.000'),
-		('21:00:00.000','23:00:00.000'),
-		('00:01:00.000','23:59:00.000')
+---- Informacion de los rangos de horas con mas uso de la aplicacion.
+--insert into dbo.CDB_TimesInfo (startHour,endHour)
+--values	('06:00:00.000','09:00:00.000'),
+--		('12:00:00.000','13:00:00.000'),
+--		('21:00:00.000','23:00:00.000'),
+--		('00:01:00.000','23:59:00.000')
 
 -- Redes Sociales
 -- Facebook
@@ -515,7 +515,7 @@ declare @count as int
 
 set @count = 0
 
-while @count < 10000
+while @count < 5000
 	begin
 		exec dbo.CDBSP_INSERT_CAMPAIGN
 		set @count = @count + 1
