@@ -1,0 +1,8 @@
+Conectarse al servidor 172.19.127.61 usando putty
+
+usuario: cloudera
+login: cloudera
+
+ejecutar el siguiente comando
+
+sqoop import --connect "jdbc:sqlserver://172.19.48.110;database=Campaign;" --username sa -P --table CDBVW_CAMPAIGN_CONFIGURATION --split-by idCampaign --target-dir /user/cloudera/joseph_aymaru_db/raw/campaigns --hive-import --hive-table joseph_aymaru_db.campaigns
