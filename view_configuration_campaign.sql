@@ -1,8 +1,10 @@
 -- use Campaign
--- delete CDBVW_CAMPAIGN_CONFIGURATION
+-- drop view CDBVW_CAMPAIGN_CONFIGURATION
 CREATE VIEW CDBVW_CAMPAIGN_CONFIGURATION
-AS SELECT campaign.idCampaign as 'ID de la campaña', campaign.description as 'Descripción de la Campaña', startDate as 'Fecha Inicio', endDate as 'Fecha Final', duration as 'Duración de la campaña', campaign.totalCost as 'Costo Total', 
- publicAmount as 'Publico', webURL as 'URL de campaña', g1.name as 'Pais de la campaña', g2.name as 'Ciudad de la campaña', g4.name as 'Tag Asociado a la campaña'
+AS SELECT campaign.idCampaign , campaign.description as 'campaigndescription', startDate, endDate, duration, campaign.totalCost, 
+ publicAmount as 'totalusers', webURL, g1.name as 'country', g2.name as 'city', g4.name as 'tag'
+-- AS SELECT campaign.idCampaign as 'ID de la campaña', campaign.description as 'Descripción de la Campaña', startDate as 'Fecha Inicio', endDate as 'Fecha Final', duration as 'Duración de la campaña', campaign.totalCost as 'Costo Total', 
+-- publicAmount as 'Publico', webURL as 'URL de campaña', g1.name as 'Pais de la campaña', g2.name as 'Ciudad de la campaña', g4.name as 'Tag Asociado a la campaña'
 FROM
 	dbo.CDB_Campaign campaign  inner join 
 	dbo.CDB_CitiesXCountryXCampaign cxcxc on (campaign.idCampaign = cxcxc.idCampaign) inner join
